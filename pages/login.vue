@@ -1,21 +1,21 @@
 <template>
   <view class="normal-login-container">
     <view class="logo-content align-center justify-center flex">
-      <image style="width: 100px;height: 100px;" :src="appLogo" mode="widthFix">
+      <image style="width: 100rpx;height: 100rpx;" :src="appLogo" mode="widthFix">
       </image>
-      <text class="title">播恩管理系统</text>
+      <text class="title">芋道移动端登录</text>
     </view>
     <view class="login-form-content">
       <view class="input-item flex align-center">
         <view class="iconfont icon-user icon"></view>
-        <input v-model="loginForm.username" class="input" type="text" placeholder="请输入账号" maxlength="30" />
+        <input v-model="loginForm.username" class="input" type="text" placeholder="请输入账号" maxlength="30"/>
       </view>
       <view class="input-item flex align-center">
         <view class="iconfont icon-password icon"></view>
-        <input v-model="loginForm.password" type="password" class="input" placeholder="请输入密码" maxlength="20" />
+        <input v-model="loginForm.password" type="password" class="input" placeholder="请输入密码" maxlength="20"/>
       </view>
-      <!--<Verify @success="pwdLogin" :mode="'pop'" :captchaType="'blockPuzzle'"-->
-      <!--        :imgSize="{ width: '330px', height: '155px' }" ref="verify"></Verify>-->
+      <Verify @success="pwdLogin" :mode="'pop'" :captchaType="'blockPuzzle'"
+              :imgSize="{ width: '330px', height: '155px' }" ref="verify"></Verify>
       <view class="action-btn">
         <button @click="handleLogin" class="login-btn cu-btn block bg-blue lg round">登录</button>
       </view>
@@ -31,15 +31,16 @@
 
 
 <script setup>
-import { ref,onMounted } from 'vue'
+import {ref, onMounted} from 'vue'
 import {useUserStore} from '@/store/modules/user.js'
 import config from '@/config'
 import {showConfirm, toast} from "@/utils/common";
-import {showLoading ,closeLoading } from "../utils/common";
+import {showLoading, closeLoading} from "../utils/common";
+import Verify from "@/components/verifition/Verify"
 
 const appLogo = config.appInfo.logo
 
-const captchaEnabled = ref(false) //todo 以后要开启，放到参数里面去
+const captchaEnabled = ref(true) //todo 以后要开启，放到参数里面去
 
 const loginForm = ref({
   username: '',
@@ -63,22 +64,22 @@ const handleUserAgrement = () => {
 }
 
 
+const verify = ref(null)
 // 登录
 const handleLogin = async () => {
-
-
-  if (loginForm.value.username===""){
+  if (loginForm.value.username === "") {
     //弹窗提示：请输入账号
     toast('请输入账号')
-  }else if (loginForm.value.password===""){
+  } else if (loginForm.value.password === "") {
     //弹窗提示：请输入密码
     toast('请输入密码')
-  }else {
-    if (captchaEnabled.value){
-     //todo 显示验证码
-    }else{
-     //直接登录
-     await pwdLogin({})
+  } else {
+    if (captchaEnabled.value) {
+      //显示验证码
+      verify.value.show()
+    } else {
+      //直接登录
+      await pwdLogin({})
     }
   }
 }
@@ -89,25 +90,24 @@ const pwdLogin = async (captchaParams) => {
   //弹窗显示：登录中，请耐心等待
   showLoading('登录中，请耐心等待')
 
-
-  //todo 处理登录验证码的问题
-  userStore.Login(loginForm.value).then(res=>{
-    //登录成功，关闭弹窗
-    closeLoading()
+  // 处理登录验证码的问题
+  userStore.Login(loginForm.value).then(res => {
     //获取用户信息，跳到首页
     loginSuccess()
-  }).catch(err=>{
-    // 登录失败
+  }).catch(err => {
+    console.log(err)
+  }).finally(() => {
+    //关闭弹窗
     closeLoading()
   })
 
 }
 
 const loginSuccess = () => {
-  userStore.GetInfo().then(res=>{
+  userStore.GetInfo().then(res => {
     //跳到首页
     uni.reLaunch({
-      url: '/pages/index/index'
+      url: '/pages/index'
     })
   })
 }
@@ -155,7 +155,7 @@ page {
       border-radius: 20px;
 
       .icon {
-        font-size: 38rpx;
+        font-size: 38 rpx;
         margin-left: 10px;
         color: #999;
       }

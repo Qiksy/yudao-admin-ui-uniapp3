@@ -1,9 +1,9 @@
-import { defineStore } from 'pinia'
+import {defineStore} from 'pinia'
 import store from '../index' // 引入pinia实例 store
 import storage from '@/utils/storage'
 import constant from "@/utils/constant";
-import { login, logout, getInfo } from '@/api/login'
-import {setToken,removeToken} from "@/utils/auth";
+import {login, logout, getInfo} from '@/api/login'
+import {setToken, removeToken} from "@/utils/auth";
 
 export const user = defineStore({
     id: 'user',
@@ -18,36 +18,41 @@ export const user = defineStore({
     //定义getter
     getters: {
         // 是否登录
-
+        getAvatar() {
+            return this.avatar
+        },
+        getName() {
+            return this.name
+        }
     },
-    actions:{
-        SET_ID(id){
+    actions: {
+        async SET_ID(id) {
             this.id = id
         },
-        SET_NAME(name){
+        async SET_NAME(name) {
             this.name = name
             storage.set(constant.name, name)
         },
-        SET_AVATAR(avatar){
+        async SET_AVATAR(avatar) {
             this.avatar = avatar
             storage.set(constant.avatar, avatar)
         },
-        SET_ROLES(roles){
+        async SET_ROLES(roles) {
             this.roles = roles
             storage.set(constant.roles, roles)
         },
-        SET_PERMISSIONS(permissions){
+        async SET_PERMISSIONS(permissions) {
             this.permissions = permissions
             storage.set(constant.permissions, permissions)
         },
         // 登录
-        Login(userInfo){
+        async Login(userInfo) {
             const username = userInfo.username.trim()
             const password = userInfo.password
             const captchaVerification = userInfo.captchaVerification
 
             return new Promise((resolve, reject) => {
-                login(username,password,captchaVerification).then(res=>{
+                login(username, password, captchaVerification).then(res => {
                     setToken(res.data)
                     resolve()
                 }).catch(error => {
@@ -56,7 +61,7 @@ export const user = defineStore({
             })
         },
         // 获取用户信息
-        GetInfo() {
+        async GetInfo() {
             return new Promise((resolve, reject) => {
                 getInfo().then(res => {
                     res = res.data; // 读取 data 数据
@@ -78,7 +83,7 @@ export const user = defineStore({
             })
         },
         // 退出系统
-        LogOut() {
+        async LogOut() {
             return new Promise((resolve, reject) => {
                 logout().then(() => {
                     this.SET_ROLES([])
